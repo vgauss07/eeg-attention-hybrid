@@ -1,0 +1,34 @@
+# Data (large files — download separately)
+data/raw/
+data/processed/
+
+# Results (regenerate from code)
+results/checkpoints/*.pt
+results/logs/
+results/figures/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment
+.env
+*.egg

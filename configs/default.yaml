@@ -1,0 +1,81 @@
+# ============================================================
+# Hybrid CNN + Attention for EEG Decoding — Master Config
+# ============================================================
+
+data:
+  dataset: "bciciv2a"
+  raw_dir: "./data/raw"
+  processed_dir: "./data/processed"
+  subject_ids: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  n_classes: 4
+  n_channels: 22
+  n_timepoints: 1000          # 4s × 250 Hz
+  sfreq: 250
+  bandpass: [4.0, 38.0]       # Hz — mu + beta bands
+  tmin: 0.5                   # seconds after cue onset
+  tmax: 4.5
+
+model:
+  # Options: "eegnet", "deep_convnet", "hybrid_cnn"
+  architecture: "hybrid_cnn"
+  # Attention type for hybrid_cnn: "none", "se", "cbam", "mha"
+  attention_type: "se"
+  # EEGNet-specific
+  eegnet_F1: 8
+  eegnet_F2: 16
+  eegnet_D: 2
+  eegnet_kernel_length: 64
+  eegnet_dropout: 0.5
+  # Deep ConvNet-specific
+  deep_n_filters_time: 25
+  deep_n_filters_spat: 25
+  deep_filter_time_length: 10
+  # Hybrid CNN
+  hybrid_temporal_filters: 16
+  hybrid_temporal_kernel: 64
+  hybrid_spatial_filters: 32
+  hybrid_pool_size: 8
+  hybrid_dropout: 0.5
+  # MHA-specific
+  mha_n_heads: 4
+  mha_d_model: 32
+  # SE-specific
+  se_reduction: 8
+
+training:
+  epochs: 300
+  batch_size: 64
+  lr: 0.001
+  weight_decay: 1e-4
+  optimizer: "adamw"           # "adam", "adamw", "sgd"
+  scheduler: "cosine"          # "cosine", "step", "plateau"
+  scheduler_patience: 20
+  early_stopping_patience: 50
+  grad_clip: 1.0
+
+evaluation:
+  # "within_subject", "cross_subject", "loso"
+  mode: "within_subject"
+  n_folds: 5                  # for cross-validation (if used)
+  metrics: ["accuracy", "balanced_accuracy", "roc_auc"]
+
+reproducibility:
+  seed: 42
+  deterministic: true
+  num_workers: 4
+
+paths:
+  results_dir: "./results"
+  checkpoint_dir: "./results/checkpoints"
+  log_dir: "./results/logs"
+  figure_dir: "./results/figures"
+
+ablations:
+  # Models × attention types to sweep
+  experiments:
+    - { architecture: "eegnet",     attention_type: "none" }
+    - { architecture: "deep_convnet", attention_type: "none" }
+    - { architecture: "hybrid_cnn", attention_type: "none" }
+    - { architecture: "hybrid_cnn", attention_type: "se" }
+    - { architecture: "hybrid_cnn", attention_type: "cbam" }
+    - { architecture: "hybrid_cnn", attention_type: "mha" }
